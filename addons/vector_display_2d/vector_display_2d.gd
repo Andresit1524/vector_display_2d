@@ -10,25 +10,61 @@ const VANISH_SPEED_CORRECTION := 10
 @export var target_property: String = "velocity" ## Name of the Vector2 attribute or variable in node's script
 
 @export_group("Rendering")
-@export var show_vectors: bool = true ## Show or hide all
-@export var show_axes: bool = false ## Shows X and Y component for the vector
-@export var vector_scale: float = 1 ## Change vectors size. This doesn't change the actual vector values
+@export var show_vectors: bool = true: ## Show or hide all
+	set(value):
+		show_vectors = value
+		queue_redraw()
+@export var show_axes: bool = false: ## Shows X and Y component for the vector
+	set(value):
+		show_axes = value
+		queue_redraw()
+@export var vector_scale: float = 1: ## Change vectors size. This doesn't change the actual vector values
+	set(value):
+		vector_scale = value
+		queue_redraw()
 
 @export_group("Aspect")
 @export_subgroup("Basic")
-@export var main_color: Color = Color.GREEN ## Color for main vector
-@export var x_axis_color: Color = Color.RED ## Color for X component of vector
-@export var y_axis_color: Color = Color.BLUE ## Color for Y component of vector
-@export var width: float = 1 ## Line width
+@export var main_color: Color = Color.GREEN: ## Color for main vector
+	set(value):
+		main_color = value
+		queue_redraw()
+@export var x_axis_color: Color = Color.RED: ## Color for X component of vector
+	set(value):
+		x_axis_color = value
+		queue_redraw()
+@export var y_axis_color: Color = Color.BLUE: ## Color for Y component of vector
+	set(value):
+		y_axis_color = value
+		queue_redraw()
+@export var width: float = 1: ## Line width
+	set(value):
+		width = value
+		queue_redraw()
 
 @export_subgroup("Vanish colors")
-@export var vanish_color: bool = false ## If true, the color turns to fallback color when the vector gets short
-@export var vanish_speed: float = 1 ## Vanishing speed for all colors
-@export var fallback_color: Color = Color.BLACK ## Color the vectors tend to when they get short
-@export var vanish_if_normalized: bool = false ## Apply vanish even when vectors are normalized
+@export var vanish_color: bool = false: ## If true, the color turns to fallback color when the vector gets short
+	set(value):
+		vanish_color = value
+		queue_redraw()
+@export var vanish_speed: float = 1: ## Vanishing speed for all colors
+	set(value):
+		vanish_speed = value
+		queue_redraw()
+@export var fallback_color: Color = Color.BLACK: ## Color the vectors tend to when they get short
+	set(value):
+		fallback_color = value
+		queue_redraw()
+@export var vanish_if_normalized: bool = false: ## Apply vanish even when vectors are normalized
+	set(value):
+		vanish_if_normalized = value
+		queue_redraw()
 
 @export_subgroup("Advanced")
-@export var rainbow: bool = false ## Use rainbow colors based on the vector angle. Only aplies to main vector, not for axes
+@export var rainbow: bool = false: ## Use rainbow colors based on the vector angle. Only aplies to main vector, not for axes
+	set(value):
+		rainbow = value
+		queue_redraw()
 @export var clamp_vector: bool = false ## Clamp the vector length to a max value. This doesn't change the actual vector values
 @export var normalize: bool = false ## Normalize vectors instead of clamping, at max length defined below. This doesn't change the actual vector values
 @export var max_length: float = 100 ## Max length for vector clamping
