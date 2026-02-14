@@ -1,7 +1,7 @@
 # Vector display 2D
 Inspired by [Easy Vector Display](https://github.com/neropatti/easy_vector_display) by neropatti.
 
-![demo](demo.png)
+![demo image](demo_content/demo.png)
 
 Show vectors on your 2D game with ease.
 

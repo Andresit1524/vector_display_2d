@@ -11,7 +11,7 @@ const VANISH_SPEED_CORRECTION := 10
 
 @export_group("Rendering")
 @export var show_vectors: bool = true ## Show or hide all
-@export var show_axes: bool = true ## If false, shows only main vector
+@export var show_axes: bool = false ## Shows X and Y component for the vector
 @export var vector_scale: float = 1 ## Change vectors size. This doesn't change the actual vector values
 
 @export_group("Aspect")
@@ -25,9 +25,13 @@ const VANISH_SPEED_CORRECTION := 10
 @export var vanish_color: bool = false ## If true, the color turns to fallback color when the vector gets short
 @export var vanish_speed: float = 1 ## Vanishing speed for all colors
 @export var fallback_color: Color = Color.BLACK ## Color the vectors tend to when they get short
+@export var vanish_if_normalized: bool = false ## Apply vanish even when vectors are normalized
 
 @export_subgroup("Advanced")
-@export var rainbow: bool = false ## Use rainbow colors based on the vector angle. Only aplies to main vector, not for axes. [b]Not implemented yet[/b]
+@export var rainbow: bool = false ## Use rainbow colors based on the vector angle. Only aplies to main vector, not for axes
+@export var clamp_vector: bool = false ## Clamp the vector length to a max value. This doesn't change the actual vector values
+@export var normalize: bool = false ## Normalize vectors instead of clamping, at max length defined below. This doesn't change the actual vector values
+@export var max_length: float = 100 ## Max length for vector clamping
 
 # Auxiliar variables
 var current_vector := Vector2.ZERO
@@ -43,7 +47,10 @@ func _ready() -> void:
 
 # Get the vector from given property
 func _physics_process(_delta) -> void:
-	var new_vector = target_node.get(target_property)
+	var new_vector: Vector2 = target_node.get(target_property)
+
+	if normalize: new_vector = new_vector.normalized() * max_length
+	if clamp_vector: new_vector = new_vector.limit_length(max_length)
 
 	# Improves performance rendering when necesary
 	if current_vector == new_vector: return
@@ -80,7 +87,7 @@ func _get_draw_colors() -> Dictionary:
 
 		result.main = Color.from_hsv(angle / TAU, 1.0, 1.0)
 
-	if vanish_color:
+	if vanish_color and (not normalize or vanish_if_normalized):
 		var vanish_value := clampf(vanish_speed * VANISH_SPEED_CORRECTION / current_vector.length(), 0.0, 1.0)
 
 		result.x = result.x.lerp(fallback_color, vanish_value)
