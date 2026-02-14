@@ -75,14 +75,20 @@ var current_vector := Vector2.ZERO
 # Reassigns the target node when doesn't exist
 func _ready() -> void:
 	if target_node == null:
-		push_error("Target node not defined. Autoassigning to parent node")
+		push_warning("Target node not defined. Autoassigning to parent node")
 		target_node = get_parent()
+
+	if not target_node:
+		push_error("Parent node not found")
+		return
 
 	if not target_node.get(target_property) is Vector2:
 		push_error("Target property is not a Vector2 or doesn't exist")
 
 # Get the vector from given property
 func _physics_process(_delta) -> void:
+	if not is_instance_valid(target_node): return
+
 	var new_vector: Vector2 = target_node.get(target_property)
 
 	if normalize: new_vector = new_vector.normalized() * max_length
@@ -124,7 +130,10 @@ func _get_draw_colors() -> Dictionary:
 		result.main = Color.from_hsv(angle / TAU, 1.0, 1.0)
 
 	if vanish_color and (not normalize or vanish_if_normalized):
-		var vanish_value := clampf(vanish_speed * VANISH_SPEED_CORRECTION / current_vector.length(), 0.0, 1.0)
+		var length := current_vector.length()
+		var vanish_value := 1.0
+		if not is_zero_approx(length):
+			vanish_value = clampf(vanish_speed * VANISH_SPEED_CORRECTION / length, 0.0, 1.0)
 
 		result.x = result.x.lerp(fallback_color, vanish_value)
 		result.y = result.y.lerp(fallback_color, vanish_value)
@@ -134,5 +143,4 @@ func _get_draw_colors() -> Dictionary:
 
 # Detects shortcut to toggle visibility
 func _unhandled_key_input(event) -> void:
-	if event.is_pressed() and event.is_match(SHORTCUT):
-		show_vectors = not show_vectors
+	if event.is_pressed() and event.is_match(SHORTCUT): show_vectors = not show_vectors
