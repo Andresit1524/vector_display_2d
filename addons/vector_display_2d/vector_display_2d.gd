@@ -6,8 +6,14 @@ const SHORTCUT: InputEventKey = preload("res://addons/vector_display_2d/display_
 const DIMMING_SPEED_CORRECTION := 10
 
 @export_group("Node")
-@export var target_node: Node ## Node to show its vectors
-@export var target_property: String = "velocity" ## Name of the Vector2 attribute or variable in node's script
+@export var target_node: Node: ## Node to show its vectors
+	set(value):
+		target_node = value
+		queue_redraw()
+@export var target_property: String = "velocity": ## Name of the Vector2 attribute or variable in node's script
+	set(value):
+		target_property = value
+		queue_redraw()
 
 @export_group("Show")
 @export var show_vectors: bool = true: ## Show or hide all
@@ -20,16 +26,34 @@ const DIMMING_SPEED_CORRECTION := 10
 		queue_redraw()
 
 @export_group("Rendering")
-@export_range(0.05, 100, 0.05, "exp", "or_greater") var vector_scale: float = 1 ## Change vectors size. This doesn't change the actual vector values
+@export_range(0.05, 100, 0.05, "exp", "or_greater") var vector_scale: float = 1: ## Change vectors size. This doesn't change the actual vector values
+	set(value):
+		vector_scale = value
+		queue_redraw()
 @export_range(0.1, 10, 0.1, "exp", "or_greater") var width: float = 1: ## Line width
 	set(value):
 		width = value
 		queue_redraw()
-@export var clamp_vector: bool = false ## Clamp the vector length to a max value defined below. This doesn't change the actual vector values
-@export var normalize: bool = false ## Normalize vector length to max length defined below. This doesn't change the actual vector values
-@export_range(0.1, 1000, 0.1, "exp", "or_greater") var max_length: float = 100 ## Max length for vector clamping or normalizing
-@export_enum("Normal", "Centered") var pivot_mode: String = "Normal" ## Change the pivot point. Normal: starts from origin. Centered: scales symmetrically
-@export_enum("Same", "Normal", "Centered") var axis_pivot_mode: String = "Same" ## Keep same pivot point for axes or override them. Highly recommended to keep in "Same"
+@export var clamp_vector: bool = false: ## Clamp the vector length to a max value defined below. This doesn't change the actual vector values
+	set(value):
+		clamp_vector = value
+		queue_redraw()
+@export var normalize: bool = false: ## Normalize vector length to max length defined below. This doesn't change the actual vector values
+	set(value):
+		normalize = value
+		queue_redraw()
+@export_range(0.1, 1000, 0.1, "exp", "or_greater") var max_length: float = 100: ## Max length for vector clamping or normalizing
+	set(value):
+		max_length = value
+		queue_redraw()
+@export_enum("Normal", "Centered") var pivot_mode: String = "Normal": ## Change the pivot point. Normal: starts from origin. Centered: scales symmetrically
+	set(value):
+		pivot_mode = value
+		queue_redraw()
+@export_enum("Same", "Normal", "Centered") var axis_pivot_mode: String = "Same": ## Keep same pivot point for axes or override them. Highly recommended to keep in "Same"
+	set(value):
+		axis_pivot_mode = value
+		queue_redraw()
 
 @export_group("Colors")
 @export var main_color: Color = Color.GREEN: ## Color for main vector
@@ -66,7 +90,10 @@ const DIMMING_SPEED_CORRECTION := 10
 	set(value):
 		dimming_if_normalized = value
 		queue_redraw()
-@export_enum("Absolute", "Visual") var normalized_dimming_type: String = "Absolute" ## Apply dimming based on actual value (with scale) of vector or visual length
+@export_enum("Absolute", "Visual") var normalized_dimming_type: String = "Absolute": ## Apply dimming based on actual value (with scale) of vector or visual length
+	set(value):
+		normalized_dimming_type = value
+		queue_redraw()
 
 # Auxiliar variables
 var current_vector := Vector2.ZERO
@@ -123,7 +150,12 @@ func _draw() -> void:
 		"y_end": Vector2.ZERO
 	}
 
-	if axis_pivot_mode == "Normal" or (pivot_mode == "Normal" and axis_pivot_mode == "Same"):
+	if axis_pivot_mode == "Normal" and pivot_mode == "Centered":
+		current_axes.x_begin = - Vector2(current_vector.x / 2, current_vector.y / 2)
+		current_axes.x_end = Vector2(current_vector.x / 2, -current_vector.y / 2)
+		current_axes.y_begin = - Vector2(current_vector.x / 2, current_vector.y / 2)
+		current_axes.y_end = Vector2(-current_vector.x / 2, current_vector.y / 2)
+	elif axis_pivot_mode == "Normal" or (pivot_mode == "Normal" and axis_pivot_mode == "Same"):
 		current_axes.x_begin = Vector2.ZERO
 		current_axes.x_end = Vector2(current_vector.x, 0)
 		current_axes.y_begin = Vector2.ZERO
