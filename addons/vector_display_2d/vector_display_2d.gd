@@ -28,6 +28,8 @@ const DIMMING_SPEED_CORRECTION := 10
 @export var clamp_vector: bool = false ## Clamp the vector length to a max value defined below. This doesn't change the actual vector values
 @export var normalize: bool = false ## Normalize vector length to max length defined below. This doesn't change the actual vector values
 @export_range(0.1, 1000, 0.1, "exp", "or_greater") var max_length: float = 100 ## Max length for vector clamping or normalizing
+@export_enum("Normal", "Centered") var pivot_mode: String = "Normal" ## Change the pivot point. Normal: starts from origin. Centered: scales symmetrically
+@export_enum("Same", "Normal", "Centered") var axis_pivot_mode: String = "Same" ## Keep same pivot point for axes or override them. Highly recommended to keep in "Same"
 
 @export_group("Colors")
 @export var main_color: Color = Color.GREEN: ## Color for main vector
@@ -64,9 +66,11 @@ const DIMMING_SPEED_CORRECTION := 10
 	set(value):
 		dimming_if_normalized = value
 		queue_redraw()
+@export_enum("Absolute", "Visual") var normalized_dimming_type: String = "Absolute" ## Apply dimming based on actual value (with scale) of vector or visual length
 
 # Auxiliar variables
 var current_vector := Vector2.ZERO
+var current_raw_length := 0.0
 
 # Reassigns the target node or throws error when it doesn't exists
 func _ready() -> void:
@@ -85,16 +89,17 @@ func _ready() -> void:
 func _physics_process(_delta) -> void:
 	if not is_instance_valid(target_node): return
 
-	var new_vector: Vector2 = target_node.get(target_property)
+	var new_vector: Vector2 = target_node.get(target_property) * vector_scale
+	var new_raw_length := new_vector.length()
 
-	new_vector *= vector_scale
 	if normalize: new_vector = new_vector.normalized() * max_length
 	if clamp_vector: new_vector = new_vector.limit_length(max_length)
 
 	# Improves performance rendering when necesary
-	if current_vector == new_vector: return
+	if current_vector == new_vector and is_equal_approx(current_raw_length, new_raw_length): return
 
 	current_vector = new_vector
+	current_raw_length = new_raw_length
 	queue_redraw()
 
 # Draw the vectors
@@ -104,13 +109,34 @@ func _draw() -> void:
 	var colors := _get_draw_colors()
 
 	# Main vector render
-	draw_line(Vector2.ZERO, current_vector, colors.main, width, true)
+	match pivot_mode:
+		"Normal": draw_line(Vector2.ZERO, current_vector, colors.main, width, true)
+		"Centered": draw_line(-current_vector / 2, current_vector / 2, colors.main, width, true)
 
 	if not show_axes: return
 
-	# Axes components render
-	draw_line(Vector2.ZERO, Vector2(current_vector.x, 0), colors.x, width, true)
-	draw_line(Vector2.ZERO, Vector2(0, current_vector.y), colors.y, width, true)
+	# Axes components calculus, according to mode
+	var current_axes := {
+		"x_begin": Vector2.ZERO,
+		"x_end": Vector2.ZERO,
+		"y_begin": Vector2.ZERO,
+		"y_end": Vector2.ZERO
+	}
+
+	if axis_pivot_mode == "Normal" or (pivot_mode == "Normal" and axis_pivot_mode == "Same"):
+		current_axes.x_begin = Vector2.ZERO
+		current_axes.x_end = Vector2(current_vector.x, 0)
+		current_axes.y_begin = Vector2.ZERO
+		current_axes.y_end = Vector2(0, current_vector.y)
+	elif axis_pivot_mode == "Centered" or (pivot_mode == "Centered" and axis_pivot_mode == "Same"):
+		current_axes.x_begin = - Vector2(current_vector.x / 2, 0)
+		current_axes.x_end = Vector2(current_vector.x / 2, 0)
+		current_axes.y_begin = - Vector2(0, current_vector.y / 2)
+		current_axes.y_end = Vector2(0, current_vector.y / 2)
+
+	# Axis draw
+	draw_line(current_axes.x_begin, current_axes.x_end, colors.x, width, true)
+	draw_line(current_axes.y_begin, current_axes.y_end, colors.y, width, true)
 
 ## Calculate colors based on current settings (Rainbow, Dimming, etc)
 func _get_draw_colors() -> Dictionary:
@@ -127,7 +153,11 @@ func _get_draw_colors() -> Dictionary:
 		result.main = Color.from_hsv(angle / TAU, 1.0, 1.0)
 
 	if dimming and (not normalize or dimming_if_normalized):
-		var length := current_vector.length()
+		var length: float
+		match normalized_dimming_type:
+			"Absolute": length = current_raw_length
+			"Visual": length = current_vector.length()
+
 		var dimming_value := 1.0
 		if not is_zero_approx(length):
 			dimming_value = clampf(dimming_speed * DIMMING_SPEED_CORRECTION / length, 0.0, 1.0)
