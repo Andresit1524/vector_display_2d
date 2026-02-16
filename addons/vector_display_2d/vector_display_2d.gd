@@ -20,17 +20,14 @@ const DIMMING_SPEED_CORRECTION := 10
 		queue_redraw()
 
 @export_group("Rendering")
-@export var vector_scale: float = 1: ## Change vectors size. This doesn't change the actual vector values
-	set(value):
-		vector_scale = value
-		queue_redraw()
-@export var width: float = 1: ## Line width
+@export_range(0.05, 100, 0.05, "exp", "or_greater") var vector_scale: float = 1 ## Change vectors size. This doesn't change the actual vector values
+@export_range(0.1, 10, 0.1, "exp", "or_greater") var width: float = 1: ## Line width
 	set(value):
 		width = value
 		queue_redraw()
 @export var clamp_vector: bool = false ## Clamp the vector length to a max value defined below. This doesn't change the actual vector values
 @export var normalize: bool = false ## Normalize vector length to max length defined below. This doesn't change the actual vector values
-@export var max_length: float = 100 ## Max length for vector clamping or normalizing
+@export_range(0.1, 1000, 0.1, "exp", "or_greater") var max_length: float = 100 ## Max length for vector clamping or normalizing
 
 @export_group("Colors")
 @export var main_color: Color = Color.GREEN: ## Color for main vector
@@ -55,7 +52,7 @@ const DIMMING_SPEED_CORRECTION := 10
 	set(value):
 		dimming = value
 		queue_redraw()
-@export var dimming_speed: float = 1: ## Dimming speed for all colors
+@export_range(0.01, 2, 0.01, "or_greater") var dimming_speed: float = 1: ## Dimming speed for all colors
 	set(value):
 		dimming_speed = value
 		queue_redraw()
@@ -90,6 +87,7 @@ func _physics_process(_delta) -> void:
 
 	var new_vector: Vector2 = target_node.get(target_property)
 
+	new_vector *= vector_scale
 	if normalize: new_vector = new_vector.normalized() * max_length
 	if clamp_vector: new_vector = new_vector.limit_length(max_length)
 
@@ -106,13 +104,13 @@ func _draw() -> void:
 	var colors := _get_draw_colors()
 
 	# Main vector render
-	draw_line(Vector2.ZERO, current_vector * vector_scale, colors.main, width, true)
+	draw_line(Vector2.ZERO, current_vector, colors.main, width, true)
 
 	if not show_axes: return
 
 	# Axes components render
-	draw_line(Vector2.ZERO, Vector2(current_vector.x, 0) * vector_scale, colors.x, width, true)
-	draw_line(Vector2.ZERO, Vector2(0, current_vector.y) * vector_scale, colors.y, width, true)
+	draw_line(Vector2.ZERO, Vector2(current_vector.x, 0), colors.x, width, true)
+	draw_line(Vector2.ZERO, Vector2(0, current_vector.y), colors.y, width, true)
 
 ## Calculate colors based on current settings (Rainbow, Dimming, etc)
 func _get_draw_colors() -> Dictionary:
