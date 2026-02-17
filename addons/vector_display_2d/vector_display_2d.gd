@@ -78,7 +78,7 @@ const DIMMING_SPEED_CORRECTION := 10
 	set(value):
 		dimming = value
 		queue_redraw()
-@export_range(0.01, 2, 0.01, "or_greater") var dimming_speed: float = 1: ## Dimming speed for all colors
+@export_range(0.01, 10, 0.01, "or_greater") var dimming_speed: float = 1: ## Dimming speed for all colors
 	set(value):
 		dimming_speed = value
 		queue_redraw()
@@ -113,7 +113,7 @@ func _ready() -> void:
 		push_error("Target property is not a Vector2 or doesn't exist")
 
 # Get the vector from given property
-func _physics_process(_delta) -> void:
+func _process(_delta) -> void:
 	if not is_instance_valid(target_node): return
 
 	var new_vector: Vector2 = target_node.get(target_property) * vector_scale
