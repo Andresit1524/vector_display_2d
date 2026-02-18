@@ -143,28 +143,7 @@ func _draw() -> void:
 	if not show_axes: return
 
 	# Axes components calculus, according to mode
-	var current_axes := {
-		"x_begin": Vector2.ZERO,
-		"x_end": Vector2.ZERO,
-		"y_begin": Vector2.ZERO,
-		"y_end": Vector2.ZERO
-	}
-
-	if axis_pivot_mode == "Normal" and pivot_mode == "Centered":
-		current_axes.x_begin = - Vector2(current_vector.x / 2, current_vector.y / 2)
-		current_axes.x_end = Vector2(current_vector.x / 2, -current_vector.y / 2)
-		current_axes.y_begin = - Vector2(current_vector.x / 2, current_vector.y / 2)
-		current_axes.y_end = Vector2(-current_vector.x / 2, current_vector.y / 2)
-	elif axis_pivot_mode == "Normal" or (pivot_mode == "Normal" and axis_pivot_mode == "Same"):
-		current_axes.x_begin = Vector2.ZERO
-		current_axes.x_end = Vector2(current_vector.x, 0)
-		current_axes.y_begin = Vector2.ZERO
-		current_axes.y_end = Vector2(0, current_vector.y)
-	elif axis_pivot_mode == "Centered" or (pivot_mode == "Centered" and axis_pivot_mode == "Same"):
-		current_axes.x_begin = - Vector2(current_vector.x / 2, 0)
-		current_axes.x_end = Vector2(current_vector.x / 2, 0)
-		current_axes.y_begin = - Vector2(0, current_vector.y / 2)
-		current_axes.y_end = Vector2(0, current_vector.y / 2)
+	var current_axes := _get_axes_position()
 
 	# Axis draw
 	draw_line(current_axes.x_begin, current_axes.x_end, colors.x, width, true)
@@ -172,7 +151,7 @@ func _draw() -> void:
 
 ## Calculate colors based on current settings (Rainbow, Dimming, etc)
 func _get_draw_colors() -> Dictionary:
-	var result := {
+	var colors := {
 		"main": main_color,
 		"x": x_axis_color,
 		"y": y_axis_color
@@ -182,7 +161,7 @@ func _get_draw_colors() -> Dictionary:
 		var angle := current_vector.angle()
 		if angle < 0: angle += TAU
 
-		result.main = Color.from_hsv(angle / TAU, 1.0, 1.0)
+		colors.main = Color.from_hsv(angle / TAU, 1.0, 1.0)
 
 	if dimming and (not normalize or dimming_if_normalized):
 		var length: float
@@ -194,11 +173,38 @@ func _get_draw_colors() -> Dictionary:
 		if not is_zero_approx(length):
 			dimming_value = clampf(dimming_speed * DIMMING_SPEED_CORRECTION / length, 0.0, 1.0)
 
-		result.x = result.x.lerp(fallback_color, dimming_value)
-		result.y = result.y.lerp(fallback_color, dimming_value)
-		result.main = result.main.lerp(fallback_color, dimming_value)
+		colors.x = colors.x.lerp(fallback_color, dimming_value)
+		colors.y = colors.y.lerp(fallback_color, dimming_value)
+		colors.main = colors.main.lerp(fallback_color, dimming_value)
 
-	return result
+	return colors
+
+## Calculates axes position based on pivot modes
+func _get_axes_position() -> Dictionary:
+	var axes := {
+		"x_begin": Vector2.ZERO,
+		"x_end": Vector2.ZERO,
+		"y_begin": Vector2.ZERO,
+		"y_end": Vector2.ZERO
+	}
+
+	if axis_pivot_mode == "Normal" and pivot_mode == "Centered":
+		axes.x_begin = - Vector2(current_vector.x / 2, current_vector.y / 2)
+		axes.x_end = Vector2(current_vector.x / 2, -current_vector.y / 2)
+		axes.y_begin = - Vector2(current_vector.x / 2, current_vector.y / 2)
+		axes.y_end = Vector2(-current_vector.x / 2, current_vector.y / 2)
+	elif axis_pivot_mode == "Normal" or (pivot_mode == "Normal" and axis_pivot_mode == "Same"):
+		axes.x_begin = Vector2.ZERO
+		axes.x_end = Vector2(current_vector.x, 0)
+		axes.y_begin = Vector2.ZERO
+		axes.y_end = Vector2(0, current_vector.y)
+	elif axis_pivot_mode == "Centered" or (pivot_mode == "Centered" and axis_pivot_mode == "Same"):
+		axes.x_begin = - Vector2(current_vector.x / 2, 0)
+		axes.x_end = Vector2(current_vector.x / 2, 0)
+		axes.y_begin = - Vector2(0, current_vector.y / 2)
+		axes.y_end = Vector2(0, current_vector.y / 2)
+
+	return axes
 
 # Detects shortcut to toggle visibility
 func _unhandled_key_input(event: InputEvent) -> void:
