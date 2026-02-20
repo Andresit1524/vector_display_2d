@@ -1,8 +1,6 @@
 extends Node2D
 
 const SHORTCUT: InputEventKey = preload("res://addons/vector_display_2d/display_shortcut.tres")
-
-# Constant to improve dimming speed
 const DIMMING_SPEED_CORRECTION := 10
 
 @export_group("Node")
@@ -45,6 +43,10 @@ const DIMMING_SPEED_CORRECTION := 10
 @export_range(0.1, 1000, 0.1, "exp", "or_greater") var max_length: float = 100: ## Max length for vector clamping or normalizing
 	set(value):
 		max_length = value
+		queue_redraw()
+@export var decorator: bool = true: ## Add a decoration for vectors head. Is always a triangle
+	set(value):
+		decorator = value
 		queue_redraw()
 @export_enum("Normal", "Centered") var pivot_mode: String = "Normal": ## Change the pivot point. Normal: starts from origin. Centered: scales symmetrically
 	set(value):
@@ -135,19 +137,21 @@ func _draw() -> void:
 
 	var colors := _get_draw_colors()
 
-	# Main vector render
-	match pivot_mode:
-		"Normal": draw_line(Vector2.ZERO, current_vector, colors.main, width, true)
-		"Centered": draw_line(-current_vector / 2, current_vector / 2, colors.main, width, true)
+	# Main vector calculos and render, according to mode
+	var current_vector_position := _get_main_vector_position()
+	draw_line(current_vector_position.begin, current_vector_position.end, colors.main, width, true)
+	_draw_decorators(current_vector_position.end, width * 3, colors.main)
 
 	if not show_axes: return
 
 	# Axes components calculus, according to mode
-	var current_axes := _get_axes_position()
+	var current_axes_position := _get_axes_position()
 
-	# Axis draw
-	draw_line(current_axes.x_begin, current_axes.x_end, colors.x, width, true)
-	draw_line(current_axes.y_begin, current_axes.y_end, colors.y, width, true)
+	# Axis render
+	draw_line(current_axes_position.x_begin, current_axes_position.x_end, colors.x, width, true)
+	_draw_decorators(current_axes_position.x_end, width * 3, colors.x)
+	draw_line(current_axes_position.y_begin, current_axes_position.y_end, colors.y, width, true)
+	_draw_decorators(current_axes_position.y_end, width * 3, colors.y)
 
 ## Calculate colors based on current settings (Rainbow, Dimming, etc)
 func _get_draw_colors() -> Dictionary:
@@ -179,6 +183,23 @@ func _get_draw_colors() -> Dictionary:
 
 	return colors
 
+## Calculate main vector position based on pivot mode
+func _get_main_vector_position() -> Dictionary:
+	var main_vector := {
+		"begin": Vector2.ZERO,
+		"end": Vector2.ZERO
+	}
+
+	match pivot_mode:
+		"Normal":
+			main_vector.begin = Vector2.ZERO
+			main_vector.end = current_vector
+		"Centered":
+			main_vector.begin = - current_vector / 2
+			main_vector.end = current_vector / 2
+
+	return main_vector
+
 ## Calculates axes position based on pivot modes
 func _get_axes_position() -> Dictionary:
 	var axes := {
@@ -205,6 +226,12 @@ func _get_axes_position() -> Dictionary:
 		axes.y_end = Vector2(0, current_vector.y / 2)
 
 	return axes
+
+## Draws decorator for vector, let given position
+func _draw_decorators(decorator_position: Vector2, size: float, color: Color) -> void:
+	if not decorator: return
+
+	# TODO: Make ts
 
 # Detects shortcut to toggle visibility
 func _unhandled_key_input(event: InputEvent) -> void:
