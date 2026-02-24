@@ -80,8 +80,8 @@ func _get_draw_colors() -> Dictionary:
 
 		colors.main = Color.from_hsv(angle / TAU, 1.0, 1.0)
 
-	if settings.dimming and (not settings.normalize or settings.dimming_if_normalized):
-		var length: float
+	if settings.dimming and (not settings.normalize or settings.normalized_dimming_type != "None"):
+		var length: float = current_vector.length()
 		match settings.normalized_dimming_type:
 			"Absolute": length = current_raw_length
 			"Visual": length = current_vector.length()
