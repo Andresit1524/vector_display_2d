@@ -8,11 +8,7 @@ const DIMMING_SPEED_CORRECTION := 10
 @export_group("Show")
 
 ## Show or hide all
-@export var show_vectors: bool = true:
-	set(value):
-		show_vectors = value
-		print_debug("Visibility changed")
-
+@export var show_vectors: bool = true
 ## Shows X and Y component for the vector
 @export var show_axes: bool = false
 
@@ -22,8 +18,8 @@ const DIMMING_SPEED_CORRECTION := 10
 ## Change vectors size. This doesn't change the actual vector values
 @export_range(0.05, 100, 0.05, "exp", "or_greater") var vector_scale: float = 1
 
-## Line width
-@export_range(0.1, 10, 0.1, "exp", "or_greater") var width: float = 1
+## Line width in pixels
+@export_range(0.1, 10, 0.1, "exp", "or_greater") var width: float = 2
 
 ## Clamp vector length to a max value defined below. This doesn't change the actual vector values
 @export var clamp_vector: bool = false
@@ -34,26 +30,32 @@ const DIMMING_SPEED_CORRECTION := 10
 ## Max length for vector clamping or normalizing
 @export_range(0.1, 1000, 0.1, "exp", "or_greater") var max_length: float = 100
 
-## Add a decoration for vectors head. Is always a triangle
-@export var decorator: bool = true
+## Add a arrowhead for vectors
+@export var arrowhead: bool = true
+
+## Arrowhead size. Each unit is equivalent to 2 times vector width
+@export_range(0.1, 10, 0.1, "exp", "or_greater") var arrowhead_size: float = 3.0
 
 ## Change the pivot point. Normal: starts from origin. Centered: scales symmetrically
 @export_enum("Normal", "Centered") var pivot_mode: String = "Normal"
 
 ## Keep same pivot point for axes or override them. Highly recommended to keep in "Same"
-@export_enum("Same", "Normal", "Centered") var axis_pivot_mode: String = "Same"
+@export_enum("Same", "Normal", "Centered") var axes_pivot_mode: String = "Same"
 
 
 @export_group("Colors")
 
 ## Color for main vector
-@export var main_color: Color = Color.GREEN
+@export var main_color: Color = Color.YELLOW
 
 ## Color for X component of vector
 @export var x_axis_color: Color = Color.RED
 
 ## Color for Y component of vector
-@export var y_axis_color: Color = Color.BLUE
+@export var y_axis_color: Color = Color.GREEN
+
+## Color for Z component of vector. Currently not supported
+@export var z_axis_color: Color = Color.BLUE
 
 ## Change main vector color based on the its angle. Not aplies for axes
 @export var rainbow: bool = false
