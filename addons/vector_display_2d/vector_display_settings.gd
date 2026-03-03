@@ -1,9 +1,10 @@
 @icon("res://addons/vector_display_2d/icon.svg")
-
 class_name VectorDisplaySettings extends Resource
+
 
 const SHORTCUT: InputEventKey = preload("res://addons/vector_display_2d/display_shortcut.tres")
 const DIMMING_SPEED_CORRECTION := 10
+
 
 @export_group("Show")
 
@@ -21,11 +22,8 @@ const DIMMING_SPEED_CORRECTION := 10
 ## Line width in pixels
 @export_range(0.1, 10, 0.1, "exp", "or_greater") var width: float = 2
 
-## Clamp vector length to a max value defined below. This doesn't change the actual vector values
-@export var clamp_vector: bool = false
-
-## Normalize vector length to max length defined below. This doesn't change the actual vector values
-@export var normalize: bool = false
+## Change the displayed vector length. Both clamp and normalize doesn´t change the actual vector values
+@export_enum("Normal", "Clamp", "Normalize") var length_mode: String = "Normal"
 
 ## Max length for vector clamping or normalizing
 @export_range(0.1, 1000, 0.1, "exp", "or_greater") var max_length: float = 100
@@ -55,7 +53,7 @@ const DIMMING_SPEED_CORRECTION := 10
 @export var y_axis_color: Color = Color.GREEN
 
 ## Color for Z component of vector. Currently not supported
-@export var z_axis_color: Color = Color.BLUE
+# @export var z_axis_color: Color = Color.BLUE
 
 ## Change main vector color based on the its angle. Not aplies for axes
 @export var rainbow: bool = false
