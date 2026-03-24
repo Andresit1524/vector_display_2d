@@ -51,7 +51,7 @@ const DIMMING_INTENSITY_CORRECTION := 10
 @export var y_axis_color: Color = Color.GREEN
 
 ## Color for Z component of vector. Currently not supported
-# @export var z_axis_color: Color = Color.BLUE
+@export var z_axis_color: Color = Color.BLUE
 
 ## Change main vector color based on the its angle. Not aplies for axes
 @export var rainbow: bool = false

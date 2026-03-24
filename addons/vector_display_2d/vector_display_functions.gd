@@ -2,6 +2,9 @@
 class_name VectorDisplayFunctions extends RefCounted
 
 
+#region Initial verifications
+
+
 ## Check the target node, its property value and settings resource
 static func check_targets_and_settings(self_node: Node, target_node: Node, target_property: String, settings: VectorDisplaySettings):
 	if target_node == null:
@@ -31,17 +34,45 @@ static func apply_lenght_mode(vector, settings: VectorDisplaySettings):
 	return null
 
 
+## Auxiliar: check vector type
+static func _is_vector_type(vector) -> bool:
+	if vector is Vector2 or vector is Vector3: return true
+
+	push_error("[VectorDisplay] Vector property has not a vector type")
+	return false
+
+
+#endregion
+
+
+#region Colors
+
+
+## Class for store rendering colors, packed to be more efficient and clean
+class VDColors:
+	var main: Color
+	var x: Color
+	var y: Color
+	var z: Color
+
+	func _init(main := Color.BLACK, x := Color.BLACK, y := Color.BLACK, z := Color.BLACK) -> void:
+		self.main = main
+		self.x = x
+		self.y = y
+		self.z = z
+
+
 ## Calculate colors based on current settings (Rainbow, Dimming, etc)
-static func calculate_draw_colors(vector, current_raw_length: float, settings: VectorDisplaySettings) -> Dictionary:
-	var colors := {
-		"main": settings.main_color,
-		"x": settings.x_axis_color,
-		"y": settings.y_axis_color
-	}
+static func calculate_draw_colors(vector, current_raw_length: float, settings: VectorDisplaySettings) -> VDColors:
+	var colors := VDColors.new(
+		settings.main_color,
+		settings.x_axis_color,
+		settings.y_axis_color,
+		settings.z_axis_color
+	)
 
 	# Check type, throws error or add new color for 3D if necessary
 	if not _is_vector_type(vector): return colors
-	if vector is Vector3: colors.z = settings.z_axis_color
 
 	# Color rainbow
 	if settings.rainbow:
@@ -63,16 +94,35 @@ static func calculate_draw_colors(vector, current_raw_length: float, settings: V
 
 		colors.x = colors.x.lerp(settings.fallback_color, dimming_value)
 		colors.y = colors.y.lerp(settings.fallback_color, dimming_value)
-		if vector is Vector3: colors.z = colors.z.lerp(settings.fallback_color, dimming_value)
+		colors.z = colors.z.lerp(settings.fallback_color, dimming_value)
 		colors.main = colors.main.lerp(settings.fallback_color, dimming_value)
 
 	return colors
 
 
-## Calculate main vector position based on pivot mode
-static func get_main_vector_position(vector, settings: VectorDisplaySettings) -> Dictionary:
-	var current_vector := {"begin": null, "end": null}
+#endregion
 
+
+#region Positions
+
+
+## Class for store rendering positions, either from the main vector or its components
+class VDPosition:
+	var begin: Vector2
+	var end: Vector2
+	var x_begin: Vector2
+	var x_end: Vector2
+	var y_begin: Vector2
+	var y_end: Vector2
+	var z_begin: Vector3
+	var z_end: Vector3
+
+
+## Calculate main vector position based on pivot mode
+static func get_main_vector_position(vector, settings: VectorDisplaySettings) -> VDPosition:
+	var current_vector := VDPosition.new()
+
+	# Check type, throws error or add new position for 3D if necessary
 	if not _is_vector_type(vector): return current_vector
 
 	match settings.pivot_mode:
@@ -88,13 +138,8 @@ static func get_main_vector_position(vector, settings: VectorDisplaySettings) ->
 
 
 ## Calculates axes position based on pivot modes
-static func get_axes_positions(vector, settings: VectorDisplaySettings) -> Dictionary:
-	var axes := {
-		"x_begin": Vector2.ZERO,
-		"x_end": Vector2.ZERO,
-		"y_begin": Vector2.ZERO,
-		"y_end": Vector2.ZERO
-	}
+static func get_axes_positions(vector, settings: VectorDisplaySettings) -> VDPosition:
+	var axes := VDPosition.new()
 
 	# Check type, throws error or add new axes for 3D if necessary
 	if not _is_vector_type(vector): return axes
@@ -146,12 +191,10 @@ static func get_axes_positions(vector, settings: VectorDisplaySettings) -> Dicti
 	return axes
 
 
-## Auxiliar: check vector type
-static func _is_vector_type(vector) -> bool:
-	if vector is Vector2 or vector is Vector3: return true
+#endregion
 
-	push_error("[VectorDisplay] Vector property has not a vector type")
-	return false
+
+#region Input
 
 
 ## Check for shortcut to toggle visibility. Returns true if handled
@@ -160,3 +203,6 @@ static func check_shortcut(event: InputEvent, settings: VectorDisplaySettings) -
 		settings.show_vectors = not settings.show_vectors
 		return true
 	return false
+
+
+#endregion
