@@ -59,7 +59,7 @@ static func calculate_draw_colors(vector, current_raw_length: float, settings: V
 
 		var dimming_value := 1.0
 		if not is_zero_approx(length):
-			dimming_value = clampf(settings.dimming_speed * settings.DIMMING_SPEED_CORRECTION / length, 0.0, 1.0)
+			dimming_value = clampf(settings.dimming_intensity * settings.DIMMING_INTENSITY_CORRECTION / length, 0.0, 1.0)
 
 		colors.x = colors.x.lerp(settings.fallback_color, dimming_value)
 		colors.y = colors.y.lerp(settings.fallback_color, dimming_value)

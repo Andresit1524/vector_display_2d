@@ -3,18 +3,16 @@ class_name VectorDisplaySettings extends Resource
 
 
 const SHORTCUT: InputEventKey = preload("res://addons/vector_display_2d/display_shortcut.tres")
-const DIMMING_SPEED_CORRECTION := 10
+const DIMMING_INTENSITY_CORRECTION := 10
 
 
-@export_group("Show")
-
-## Show or hide all
+## Show or hide all vectors
 @export var show_vectors: bool = true
 ## Shows X and Y component for the vector
 @export var show_axes: bool = false
 
 
-@export_group("Rendering")
+@export_group("Aspect")
 
 ## Change vectors size. This doesn't change the actual vector values
 @export_range(0.05, 100, 0.05, "exp", "or_greater") var vector_scale: float = 1
@@ -65,7 +63,7 @@ const DIMMING_SPEED_CORRECTION := 10
 @export var dimming: bool = false
 
 ## Dimming speed for all colors
-@export_range(0.01, 10, 0.01, "or_greater") var dimming_speed: float = 1
+@export_range(0.01, 10, 0.01, "or_greater") var dimming_intensity: float = 1
 
 ## Color the vectors tend to when they get short
 @export var fallback_color: Color = Color.BLACK
