@@ -4,12 +4,12 @@ class_name VectorDisplay2D extends Node2D
 ## Node to show its vectors
 @export var target_node: Node
 ## Name of the Vector2 attribute or variable in node's script
-@export var target_property: String = "velocity"
+@export var target_property: StringName = &"velocity"
 ## Vector display settings. Create your own using a [code]VectorDisplaySettings[/code] resource
 @export var settings: VectorDisplaySettings
 
 
-# Auxiliar variables
+# Auxiliary variables
 var current_vector := Vector2.ZERO
 var current_raw_length := 0.0
 
@@ -30,9 +30,9 @@ func _process(_delta) -> void:
 	if not is_instance_valid(target_node): return
 
 	# New values
-	var new_vector: Vector2 = target_node.get(target_property) * settings.vector_scale
+	var new_vector: Vector2 = target_node.get(target_property)
 	var new_raw_length := new_vector.length()
-	new_vector = VectorDisplayFunctions.apply_lenght_mode(new_vector, settings)
+	new_vector = VectorDisplayFunctions.apply_length_mode(new_vector, settings)
 
 	# Improves performance, rendering only when is necesary
 	if current_vector == new_vector and is_equal_approx(current_raw_length, new_raw_length): return
@@ -77,10 +77,11 @@ func _draw_arrowhead(start: Vector2, position: Vector2, color: Color) -> void:
 
 	# Unit direction of the original vector (director)
 	var director := (position - start).normalized()
-	# Sides lenght of the triangle
+
+	# Sides length of the triangle
 	var actual_size := settings.width * settings.arrowhead_size * 2
 
-	# Adds a extra lenght for fix bad rendering or arrowhead
+	# Adds a extra length for fix bad rendering of arrowhead
 	var offset := director * settings.width * settings.arrowhead_size
 
 	# Hides arrowhead if vector is very small. If not, continue
