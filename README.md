@@ -1,9 +1,9 @@
 # Vector Display 2D
-![Godot 4.0+](https://img.shields.io/badge/Godot-4.0%2B-0ea5e9?style=flat-square&logo=godotengine&logoColor=%0ea5e9)
-![Version](https://img.shields.io/badge/version-1.4-0ea5e9?style=flat-square)
-[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
-[![Mintlify docs](https://img.shields.io/badge/Mintlify-docs-18E299?style=flat-square&logo=mintlify)](https://andresit1524-vector_display_2d.mintlify.app)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Andresit1524/vector_display_2d)
+![Godot 4.0+](https://img.shields.io/badge/Godot-4.0%2B-0ea5e9?style=flat-square&logo=godotengine&logoColor=0ea5e9)
+![Version](https://img.shields.io/badge/Version-1.4-0ea5e9?style=flat-square)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+[![Asset Library](https://img.shields.io/badge/Asset-Library-0ea5e9?style=flat-square&logo=godotengine&logoColor=0ea5e9)](https://godotengine.org/asset-library/asset/4765)
+[![Asset Store](https://img.shields.io/badge/Asset-Store-0ea5e9?style=flat-square&logo=godotengine&logoColor=0ea5e9)](https://store.godotengine.org/asset/andresit1524/vectordisplay2d/)
 
 Inspired by [Easy Vector Display](https://github.com/neropatti/easy_vector_display) by neropatti.
 
